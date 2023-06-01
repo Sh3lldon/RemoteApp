@@ -21,13 +21,13 @@ void Function1(char* userInput) {
 }
 
 void Function2(SOCKET clientSock, char* userInput) {
-	const int size = 60;
-	char* buf[60];
+	const int size = 120;
+	char buf[120];
 	ZeroMemory(buf, sizeof(buf));
 
-	snprintf((char*)buf, size, (char*)userInput + 10);
+	snprintf(buf, size, userInput + 10);
 
-	send(clientSock, (char*)buf, sizeof(buf), 0);
+	send(clientSock, buf, sizeof(buf), 0);
 }
 
 void Function3(char* userInput) {
@@ -99,7 +99,7 @@ void handleConnection(SOCKET clientSock) {
 		send(clientSock, message, strlen(message), 0);
 	}
 
-	
+
 	if (userInput[5] != 'B') {
 		char* message = "Third check doesn't passed :(";
 		send(clientSock, message, strlen(message), 0);
@@ -124,15 +124,23 @@ void handleConnection(SOCKET clientSock) {
 		break;
 	case 901:
 		printf("Calling Function 2\n");
-		
+
 		Function2(clientSock, (char*)userInput);
 		break;
+	case 902:
+		printf("Calling Function 3\n");
+		
+		Function3((char*)userInput);
+		break;
+	default:
+		printf("[-] Wrong opcode\n");
+		break;
 	}
-
+	
 
 	closesocket(clientSock);
 	printf("%d thread ended connecion!\n", GetCurrentThread());
-	
+
 }
 
 
@@ -145,7 +153,7 @@ int main(int argc, char* argv[])
 	int c;
 
 	printf("\n[*] Initialising Winsock...\n");
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0){
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 		printf("[-] Failed. Error Code : %d\n", WSAGetLastError());
 		return 1;
 	}
@@ -154,7 +162,7 @@ int main(int argc, char* argv[])
 	}
 
 
-	if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET){
+	if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
 		printf("[-] Could not create socket : %d\n", WSAGetLastError());
 		return 1;
 	}
@@ -194,7 +202,7 @@ int main(int argc, char* argv[])
 		printf("[+] Client connected\n");
 		_beginthread(&handleConnection, 0, (void*)newSocket);
 	}
-	
+
 	if (newSocket == SOCKET_ERROR) {
 		printf("[-] accept failed with error code: %d\n", WSAGetLastError());
 		closesocket(s);
@@ -206,6 +214,6 @@ int main(int argc, char* argv[])
 	closesocket(newSocket);
 	WSACleanup();
 
-	
+
 	return 0;
 }
