@@ -118,19 +118,19 @@ void handleConnection(SOCKET clientSock) {
 
 	switch (opcode) {
 	case 900:
-		printf("Calling Function 1\n");
+		printf("Calling Function1\n");
 		Function1((char*)userInput);
-		send(clientSock, "[+] 901 option compeleted", 25, 0);
+		send(clientSock, "[+] 900 option compeleted", 25, 0);
 		break;
 	case 901:
-		printf("Calling Function 2\n");
-
+		printf("Calling Function2\n");
 		Function2(clientSock, (char*)userInput);
+		send(clientSock, "[+] 901 option compeleted", 25, 0);
 		break;
 	case 902:
-		printf("Calling Function 3\n");
-		
+		printf("Calling Function3\n");
 		Function3((char*)userInput);
+		send(clientSock, "[+] 902 option compeleted", 25, 0);
 		break;
 	default:
 		printf("[-] Wrong opcode\n");
