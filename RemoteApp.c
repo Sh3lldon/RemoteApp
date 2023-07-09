@@ -2,9 +2,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <stdlib.h>
-#include <memory.h>
 #include <time.h>
-#include <process.h>
 
 
 #pragma comment(lib, "ws2_32.lib") //Winsock Library
@@ -13,21 +11,82 @@
 #define DEFAULT_PORT 9999
 #define CANARY 0x11223344
 
-void Function1(char* userInput) {
-	char buf[DEFAULT_BUFLEN];
-	ZeroMemory(buf, sizeof(buf));
 
-	memcpy(buf, userInput, DEFAULT_BUFLEN);
+void Function0(SOCKET clientSock, char* userInput) {
+	HMODULE hModule;
+	int result = 0;
+	char dll[12] = { 'W','S','2','_', '3', '2', '.', 'd', 'l', 'l' };
+
+	for (int i = 0; i < 10; i++) {
+		if (dll[i] != userInput[i + 10]) {
+			char* message = "[-] Not correct dll";
+			send(clientSock, message, strlen(message), 0);
+			break;
+		}
+		else
+			result++;
+	}
+	if (result == 10) {
+		hModule = GetModuleHandleA("WS2_32.dll");
+		if (hModule == NULL) {
+			char* message = "[-] Failed to get the handle of the dll | ";
+			send(clientSock, message, strlen(message), 0);
+		}
+		char message[50];
+		snprintf(message, sizeof(message), "[+] Address of WS2_32.dll: %p", (void*)hModule);
+
+		send(clientSock, message, strlen(message), 0);
+	}
+}
+
+
+void Function1(SOCKET clientSock, char* userInput) {
+	HMODULE hModule;
+	int result = 0;
+	char dll[9] = { 'N','T','D','L','L','.','d','l','l' };
+	
+	for (int i = 0; i < 9; i++) {
+		if (dll[i] != userInput[i + 10]) {
+			char* message = "[-] Not correct dll";
+			send(clientSock, message, strlen(message), 0);
+			break;
+		}
+		else
+			result++;
+	}
+	if(result == 9) {
+		hModule = GetModuleHandleA("NTDLL.dll");
+		if (hModule == NULL) {
+			char* message = "[-] Failed to get the handle of the dll | ";
+			send(clientSock, message, strlen(message), 0);
+		}
+		char message[50];
+		snprintf(message, sizeof(message), "[+] Address of ntdll.dll: %p", (void*)hModule);
+		
+		send(clientSock, message, strlen(message), 0);
+	}
 }
 
 void Function2(SOCKET clientSock, char* userInput) {
-	const int size = 120;
-	char buf[120];
-	ZeroMemory(buf, sizeof(buf));
+	char func[4] = { 'm','a','i','n' };
+	int result = 0;
+	char message[50];
 
-	snprintf(buf, size, userInput + 10);
+	for (int i = 0; i < 4; i++) {
+		if (func[i] == userInput[i + 10]) {
+			result++;
+		}
+	}
+	if (result == 4) {
+		void *address = getFunctionAddress();
+		snprintf(message, sizeof(message), "[+] Address of main: %p", address);
 
-	send(clientSock, buf, sizeof(buf), 0);
+		send(clientSock, message, strlen(message), 0);
+	}
+	else {
+		char* message2 = "[-] Function not correct";
+		send(clientSock, message2, strlen(message), 0);
+	}
 }
 
 void Function3(char* userInput) {
@@ -117,9 +176,14 @@ void handleConnection(SOCKET clientSock) {
 	printf("User opcode: %d\n", opcode);
 
 	switch (opcode) {
+	case 899:
+		printf("Calling Function0\n");
+		Function0(clientSock, (char*)userInput);
+		send(clientSock, "[+] 899 option compeleted", 25, 0);
+		break;
 	case 900:
 		printf("Calling Function1\n");
-		Function1((char*)userInput);
+		Function1(clientSock, (char*)userInput);
 		send(clientSock, "[+] 900 option compeleted", 25, 0);
 		break;
 	case 901:
@@ -130,7 +194,6 @@ void handleConnection(SOCKET clientSock) {
 	case 902:
 		printf("Calling Function3\n");
 		Function3((char*)userInput);
-		send(clientSock, "[+] 902 option compeleted", 25, 0);
 		break;
 	default:
 		printf("[-] Wrong opcode\n");
@@ -170,7 +233,6 @@ int main(int argc, char* argv[])
 		printf("[+] Socket created\n");
 	}
 
-
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_port = htons(DEFAULT_PORT);
@@ -200,7 +262,7 @@ int main(int argc, char* argv[])
 
 	while ((newSocket = accept(s, (struct sockaddr*)&client, &c)) != INVALID_SOCKET) {
 		printf("[+] Client connected\n");
-		_beginthread(&handleConnection, 0, (void*)newSocket);
+		_beginthread(&handleConnection, 0, newSocket);
 	}
 
 	if (newSocket == SOCKET_ERROR) {
@@ -216,4 +278,10 @@ int main(int argc, char* argv[])
 
 
 	return 0;
+}
+
+int getFunctionAddress() {
+	void (*address)() = &main;
+
+	return (int)address;
 }
