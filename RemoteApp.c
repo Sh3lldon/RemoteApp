@@ -43,9 +43,9 @@ void Function0(SOCKET clientSock, char* userInput) {
 void Function1(SOCKET clientSock, char* userInput) {
 	HMODULE hModule;
 	int result = 0;
-	char dll[9] = { 'N','T','D','L','L','.','d','l','l' };
+	char dll[12] = { 'K','E','R','N','E','L','3','2','.', 'd', 'l', 'l' };
 	
-	for (int i = 0; i < 9; i++) {
+	for (int i = 0; i < 12; i++) {
 		if (dll[i] != userInput[i + 10]) {
 			char* message = "[-] Not correct dll";
 			send(clientSock, message, strlen(message), 0);
@@ -54,14 +54,14 @@ void Function1(SOCKET clientSock, char* userInput) {
 		else
 			result++;
 	}
-	if(result == 9) {
-		hModule = GetModuleHandleA("NTDLL.dll");
+	if(result == 12) {
+		hModule = GetModuleHandleA("KERNEL32.dll");
 		if (hModule == NULL) {
 			char* message = "[-] Failed to get the handle of the dll | ";
 			send(clientSock, message, strlen(message), 0);
 		}
 		char message[50];
-		snprintf(message, sizeof(message), "[+] Address of ntdll.dll: %p", (void*)hModule);
+		snprintf(message, sizeof(message), "[+] Address of KERNEL32.dll: %p", (void*)hModule);
 		
 		send(clientSock, message, strlen(message), 0);
 	}
