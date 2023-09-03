@@ -137,14 +137,14 @@ void Function5(SOCKET clientSocket, char* userInput) {
 
 
 void handleConnection(SOCKET clientSocket) {
-	
+
 	char* message = "Welcome to RemoteApp3 | ";
 	char userInput[BUFFLEN];
 	char response[BUFFLEN];
 	ZeroMemory(userInput, BUFFLEN);
 	ZeroMemory(response, BUFFLEN);
 	int recvLen;
-	char badchars[] = {0x0a, 0x0b, 0x0c, 0x0d, 0xa1, 0xa2, 0xa3, 0xa4, 0xb1, 0xb2, 0xb3, 0xb4, 0xf1, 0xf2, 0xf3, 0xf4};
+	char badchars[] = { 0x0a, 0x0b, 0x0c, 0x0d, 0xa1, 0xa2, 0xa3, 0xa4, 0xb1, 0xb2, 0xb3, 0xb4, 0xf1, 0xf2, 0xf3, 0xf4 };
 
 
 	if (send(clientSocket, message, strlen(message), 0) == SOCKET_ERROR) {
@@ -188,7 +188,7 @@ void handleConnection(SOCKET clientSocket) {
 	else {
 		message = "[-] Stack canary still alive | ";
 		send(clientSocket, message, strlen(message), 0);
-		closesocket(clientSocket);
+		exit(1);
 	}
 
 	unsigned int check1, check2;
@@ -197,12 +197,12 @@ void handleConnection(SOCKET clientSocket) {
 	memcpy(&check2, (char*)&userInput + 16, sizeof(unsigned int));
 	printf("check1: %x\n", check1);
 	printf("check2: %x\n", check2);
-	
+
 
 	if (check1 != 0x41414141 && check2 != 0x42424242) {
 		message = "[-] Authentication failed | ";
 		send(clientSocket, message, strlen(message), 0);
-		closesocket(clientSocket);
+		exit(1);
 	}
 	else {
 		message = "[+] Authentication bypassed | ";
@@ -223,6 +223,7 @@ void handleConnection(SOCKET clientSocket) {
 	else {
 		message = "Third didn't pass | ";
 		send(clientSocket, message, strlen(message), 0);
+		exit(1);
 	}
 
 	unsigned int opcode;
@@ -237,7 +238,7 @@ void handleConnection(SOCKET clientSocket) {
 		Function1(clientSocket, (char*)userInput);
 		send(clientSocket, message, strlen(message), 0);
 		break;
-		
+
 	case 901:
 		printf("[*] Calling Function2\n");
 		message = "[+] Function2 completed | ";
@@ -274,7 +275,7 @@ void handleConnection(SOCKET clientSocket) {
 		break;
 	}
 
-		
+
 
 }
 
