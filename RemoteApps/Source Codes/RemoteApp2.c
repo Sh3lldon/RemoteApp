@@ -20,7 +20,7 @@ void Function0(SOCKET clientSocket, char* userInput) {
 	char* message = "";
 	char dll[10] = { 'W','S','2','_','3','2','.','d','l','l' };
 	int result = 0;
-	
+
 	for (int i = 0; i < 10; i++) {
 		if (userInput[i + 16] != dll[i]) {
 			message = "[-] Incorrect dll";
@@ -41,7 +41,7 @@ void Function0(SOCKET clientSocket, char* userInput) {
 		else {
 			char message2[50];
 
-			snprintf(message2, 50, "[+] Adddress of WS2_32.dll: %p", (void*)hModule);
+			snprintf(message2, 50, "[+] Address of WS2_32.dll: %p", (void*)hModule);
 			send(clientSocket, message2, strlen(message2), 0);
 		}
 	}
@@ -98,8 +98,8 @@ void Function2(SOCKET clientSocket, char* userInput) {
 			send(clientSocket, message, strlen(message), 0);
 		}
 		char message2[50];
-		
-		snprintf(message2, 50, "[+] Address of KERNE32.dll: %p", (void*)hModule);
+
+		snprintf(message2, 50, "[+] Address of KERNEL32.dll: %p", (void*)hModule);
 		send(clientSocket, message2, strlen(message2), 0);
 	}
 }
@@ -134,9 +134,9 @@ void handleConnection(SOCKET clientSocket) {
 	ZeroMemory(response, BUFLEN);
 
 	send(clientSocket, message, strlen(message), 0);
-	 
+
 	recvLen = recv(clientSocket, response, BUFLEN, 0);
-	
+
 	memcpy(userInput, response, BUFLEN);
 	memcpy(&canary1, (char*)&userInput, sizeof(unsigned int));
 
@@ -144,6 +144,7 @@ void handleConnection(SOCKET clientSocket) {
 	if (canary1 != CANARY1) {
 		message = "[-] Something went wrong :(";
 		send(clientSocket, message, strlen(message), 0);
+		exit(1);
 	}
 
 	memcpy(&canary2, userInput + 4, sizeof(unsigned int));
@@ -151,6 +152,7 @@ void handleConnection(SOCKET clientSocket) {
 	if (canary2 != CANARY2) {
 		message = "[-] Something went wrong :(";
 		send(clientSocket, message, strlen(message), 0);
+		exit(1);
 	}
 
 	memcpy(&canary3, userInput + 8, sizeof(unsigned int));
@@ -158,7 +160,8 @@ void handleConnection(SOCKET clientSocket) {
 	if (canary3 != CANARY3) {
 		message = "[-] Something went wrong :(";
 		send(clientSocket, message, strlen(message), 0);
-	
+		exit(1);
+
 	}
 
 	message = "[+] All canary checks passed";
