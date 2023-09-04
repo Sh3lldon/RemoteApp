@@ -199,14 +199,14 @@ void handleConnection(SOCKET clientSocket) {
 	printf("check2: %x\n", check2);
 
 
-	if (check1 != 0x41414141 && check2 != 0x42424242) {
+	if (check1 == 0x41414141 && check2 == 0x42424242) {
+		message = "[+] Authentication bypassed | ";
+		send(clientSocket, message, strlen(message), 0);
+	}
+	else {
 		message = "[-] Authentication failed | ";
 		send(clientSocket, message, strlen(message), 0);
 		exit(1);
-	}
-	else {
-		message = "[+] Authentication bypassed | ";
-		send(clientSocket, message, strlen(message), 0);
 	}
 
 	unsigned int check3, check4;
