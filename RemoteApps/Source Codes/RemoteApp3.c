@@ -213,8 +213,8 @@ void handleConnection(SOCKET clientSocket) {
 
 	memcpy(&check3, (char*)&userInput + 20, sizeof(unsigned int));
 	memcpy(&check4, (char*)&userInput + 24, sizeof(unsigned int));
-	printf("check1: %x\n", check3);
-	printf("check2: %x\n", check4);
+	printf("check3: %x\n", check3);
+	printf("check4: %x\n", check4);
 
 	if (check3 == 0x43434343 && check4 == 0x44444444) {
 		message = "Third check passed | ";
