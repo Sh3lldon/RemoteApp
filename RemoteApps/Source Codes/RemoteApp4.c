@@ -26,7 +26,7 @@ void Function1(SOCKET clientSocket, char* userInput) {
 	for (int i = 0; i < 10; i++) {
 		module[i] = (char)userInput[i + 56];
 	}
-	
+
 	hModule = GetModuleHandleA((char*)module);
 	if (hModule == NULL) {
 		message = "[-] Failed getting handle of the module | ";
@@ -34,7 +34,7 @@ void Function1(SOCKET clientSocket, char* userInput) {
 	}
 	else {
 		char message2[100];
-		
+
 		snprintf(message2, 50, "[+] Address of %s: %p | ", module, (void*)hModule);
 		send(clientSocket, message2, strlen(message2), 0);
 	}
@@ -59,7 +59,7 @@ void Function2(SOCKET clientSocket, char* userInput) {
 	}
 	else {
 		char message2[100];
-	
+
 		snprintf(message2, 100, "[+] Address of %s: %p | ", module, (void*)hModule);
 		send(clientSocket, message2, strlen(message2), 0);
 	}
@@ -80,7 +80,7 @@ void Function3(SOCKET clientSocket, char* userInput) {
 		}
 		result++;
 	}
-	
+
 	if (result == 4) {
 		int address = LeakMain();
 
@@ -131,7 +131,7 @@ void Function6(SOCKET clientSocket, char* userInput) {
 
 	char buffer[4096];
 	ZeroMemory(buffer, BUFLEN);
-	
+
 	memcpy(userInput, buffer, BUFLEN);
 
 }
@@ -287,7 +287,7 @@ void handleConnection(SOCKET clientSocket) {
 
 
 	memcpy(&opcode, (char*)&userInput + 52, sizeof(unsigned int));
-	
+
 	switch (opcode) {
 	case 0xfffff384:
 		message = "[*] Calling Function1 | ";
@@ -341,7 +341,7 @@ void handleConnection(SOCKET clientSocket) {
 		message = "[*] Calling Function7 | ";
 		send(clientSocket, message, strlen(message), 0);
 		Function7(clientSocket, (char*)userInput);
-		message = "[+] Function8 completed | ";
+		message = "[+] Function7 completed | ";
 		send(clientSocket, message, strlen(message), 0);
 		break;
 
